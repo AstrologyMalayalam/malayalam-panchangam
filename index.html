@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panchangam - Advanced Hindu Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans Malayalam', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .date-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .date-selector input, .date-selector button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .date-selector input {
+            width: 150px;
+        }
+
+        .date-selector button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .date-selector button:hover {
+            background-color: #45a049;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: inherit;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: #4a00e0;
+            color: white;
+        }
+
+        /* Tab content fade-in */
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main card */
+        .main-card {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .current-date { font-size: 24px; margin-bottom: 10px; }
+        .malayalam-date { font-size: 32px; font-weight: bold; margin-bottom: 5px; font-family: 'Noto Sans Malayalam', sans-serif; }
+        .malayalam-year { font-size: 18px; font-family: 'Noto Sans Malayalam', sans-serif; }
+
+        /* Info grid */
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 3px solid #4a00e0;
+            transition: transform 0.2s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Color-coded info cards */
+        .info-card.card-sunrise { border-top-color: #e67e22; }
+        .info-card.card-sunset { border-top-color: #c0392b; }
+        .info-card.card-nakshatra { border-top-color: #8e44ad; }
+        .info-card.card-tithi { border-top-color: #2980b9; }
+        .info-card.card-weekday { border-top-color: #27ae60; }
+        .info-card.card-yoga { border-top-color: #f39c12; }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+
+        .info-value {
+            font-size: 18px;
+            color: #333;
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+
+        .info-subvalue {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Details */
+        .details-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #4a00e0;
+            margin-bottom: 5px;
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+
+        .detail-value { color: #333; }
+
+        /* Timings grid with inauspicious red styling */
+        .timings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-card.card-inauspicious {
+            border-top: 3px solid #e74c3c;
+            background: linear-gradient(to bottom, #fff5f5, white);
+        }
+
+        .info-card.card-inauspicious .info-label {
+            color: #c0392b;
+        }
+
+        .info-card.card-inauspicious .info-value {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .info-card.card-moon { border-top-color: #7f8c8d; }
+        .info-card.card-hora { border-top-color: #9b59b6; }
+
+        /* Special events */
+        .special-events {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff8e1;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .event-title { font-weight: bold; margin-bottom: 10px; color: #e65100; }
+
+        .event-text {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .val {
+            background-color: #e3f2fd;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        /* Day nakshatras */
+        .day-nakshatras-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f3e5f5;
+            border-radius: 8px;
+            border-left: 4px solid #8e24aa;
+        }
+
+        .nak-section-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #6a1b9a;
+            font-size: 16px;
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+
+        .day-nak-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .day-nak-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .day-nak-item.active-nak {
+            border-left: 4px solid #4CAF50;
+            background-color: #f1f8e9;
+        }
+
+        .day-nak-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #4a00e0;
+            min-width: 120px;
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+
+        .day-nak-time { font-size: 13px; color: #555; }
+
+        .day-nak-pada {
+            font-size: 12px;
+            color: #888;
+            margin-left: auto;
+            background-color: #e8eaf6;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .additional-info-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+        }
+
+        .hidden { display: none; }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row:last-child { border-bottom: none; }
+
+        /* ===== Calendar Styles ===== */
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-nav button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4a00e0;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .calendar-nav button:hover { background-color: #3700b3; }
+
+        .calendar-nav .cal-month-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background-color: #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-grid .cal-header {
+            background-color: #4a00e0;
+            color: white;
+            text-align: center;
+            padding: 10px 4px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .calendar-grid .cal-day {
+            background-color: white;
+            min-height: 90px;
+            padding: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .calendar-grid .cal-day:hover { background-color: #f0e6ff; }
+        .calendar-grid .cal-day.today { background-color: #e8f5e9; border: 2px solid #4CAF50; }
+        .calendar-grid .cal-day.selected { background-color: #ede7f6; border: 2px solid #4a00e0; }
+        .calendar-grid .cal-day.other-month { opacity: 0.35; }
+
+        .cal-day .greg-date { font-size: 16px; font-weight: bold; color: #333; }
+        .cal-day .mal-date { font-size: 11px; color: #6a1b9a; margin-top: 2px; font-family: 'Noto Sans Malayalam', sans-serif; }
+        .cal-day .nak-info { font-size: 10px; color: #1565c0; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .cal-day .event-dot {
+            display: inline-block;
+            background-color: #e65100;
+            color: white;
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            margin-top: 3px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cal-day .sunday .greg-date { color: #c62828; }
+
+        /* ===== TOOLS TAB REDESIGN ===== */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .tool-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .tool-card-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .tool-card-header .tool-icon {
+            font-size: 24px;
+        }
+
+        .tool-card-body {
+            padding: 0 20px 20px;
+        }
+
+        /* Per-tool colored left border */
+        .tool-card.tool-converter { border-left: 4px solid #e67e22; }
+        .tool-card.tool-nakfinder { border-left: 4px solid #8e44ad; }
+        .tool-card.tool-events { border-left: 4px solid #2980b9; }
+
+        /* Inline form row */
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .form-row .form-field {
+            flex: 1;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .form-field input,
+        .form-field select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus {
+            outline: none;
+            border-color: #8e2de2;
+            box-shadow: 0 0 0 3px rgba(142,45,226,0.1);
+        }
+
+        /* Purple themed buttons */
+        .tool-btn {
+            display: inline-block;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74,0,224,0.3);
+        }
+
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Result box with slide-down */
+        .tool-result {
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: linear-gradient(to right, #f0ebff, #e8f4fd);
+            border-radius: 8px;
+            border-left: 3px solid #8e2de2;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .tool-result.visible {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Nakshatra result list */
+        .nak-result-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0d8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nak-result-item:last-child { border-bottom: none; }
+
+        .nak-result-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .nak-result-details { flex: 1; }
+        .nak-result-greg { font-weight: 600; color: #333; font-size: 14px; }
+        .nak-result-mal { font-size: 13px; color: #888; font-family: 'Noto Sans Malayalam', sans-serif; }
+
+        /* Upcoming events timeline */
+        .events-timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .events-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #8e2de2, #2980b9);
+            border-radius: 1px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 10px 0 10px 16px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 16px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #8e2de2;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #8e2de2;
+        }
+
+        .timeline-item:nth-child(2)::before { background: #2980b9; box-shadow: 0 0 0 2px #2980b9; }
+        .timeline-item:nth-child(3)::before { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
+
+        .timeline-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .timeline-date {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 12px;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .app-footer span {
+            color: #8e2de2;
+            font-weight: 500;
+        }
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+
+            header { padding: 14px; margin-bottom: 16px; border-radius: 8px; }
+            header h1 { font-size: 22px; }
+            header p { font-size: 13px; }
+
+            /* Tabs: scrollable horizontal */
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 14px;
+                border-radius: 8px;
+            }
+
+            .tab-btn {
+                padding: 10px 8px;
+                font-size: 13px;
+                white-space: nowrap;
+                min-width: 60px;
+            }
+
+            .tab-content { padding: 14px; border-radius: 8px; }
+
+            /* Main card */
+            .main-card { padding: 14px; border-radius: 8px; }
+            .current-date { font-size: 16px; }
+            .malayalam-date { font-size: 24px; }
+            .malayalam-year { font-size: 15px; }
+
+            /* Info grid: 2 columns on mobile */
+            .grid-info {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .info-card { padding: 10px; }
+            .info-label { font-size: 12px; }
+            .info-value { font-size: 15px; }
+            .info-subvalue { font-size: 12px; }
+
+            /* Details grid */
+            .details-list {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            /* Timings grid */
+            .timings-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            /* Day nakshatras */
+            .day-nak-item {
+                flex-wrap: wrap;
+                gap: 6px;
+                padding: 8px 10px;
+            }
+            .day-nak-name { min-width: auto; font-size: 14px; }
+            .day-nak-time { font-size: 12px; }
+            .day-nak-pada { margin-left: 0; }
+
+            /* Calendar */
+            .calendar-grid .cal-day { min-height: 65px; padding: 4px; }
+            .cal-day .greg-date { font-size: 14px; }
+            .cal-day .mal-date { font-size: 9px; }
+            .cal-day .nak-info { font-size: 8px; }
+            .cal-day .event-dot { font-size: 7px; padding: 1px 3px; }
+            .calendar-nav button { padding: 6px 12px; font-size: 14px; }
+            .calendar-nav .cal-month-title { font-size: 16px; }
+
+            /* Tools */
+            .tool-card-header { padding: 12px 14px; font-size: 15px; }
+            .tool-card-body { padding: 0 14px 14px; }
+            .form-row { flex-direction: column; gap: 8px; }
+            .tool-btn { width: 100%; text-align: center; }
+
+            /* Special events */
+            .special-events { padding: 10px; }
+            .val { font-size: 12px; padding: 4px 8px; }
+
+            /* Footer */
+            .app-footer { font-size: 11px; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 style="font-family: 'Noto Sans Malayalam', sans-serif;">പഞ്ചാംഗം - Panchangam</h1>
+            <p>Advanced Hindu Calendar System</p>
+        </header>
+
+        <div class="date-selector">
+            <input type="date" id="dateInput">
+            <button id="todayBtn">Today</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="main">Main</button>
+            <button class="tab-btn" data-tab="details">Details</button>
+            <button class="tab-btn" data-tab="timings">Timings</button>
+            <button class="tab-btn" data-tab="additional">Additional</button>
+            <button class="tab-btn" data-tab="calendar">Calendar</button>
+            <button class="tab-btn" data-tab="tools">Tools</button>
+        </div>
+
+        <div id="main" class="tab-content active">
+            <div class="main-card">
+                <div id="currentDateStr" class="current-date">Loading...</div>
+                <div id="malDay" class="malayalam-date">--</div>
+                <div id="malMonth" class="malayalam-month" style="font-family: 'Noto Sans Malayalam', sans-serif;">--</div>
+                <div id="malYear" class="malayalam-year">--</div>
+            </div>
+
+            <div class="grid-info">
+                <div class="info-card card-nakshatra">
+                    <div class="info-label">നക്ഷത്രം</div>
+                    <div id="nakshatra" class="info-value">--</div>
+                    <div id="nakTimes" class="info-subvalue">--</div>
+                </div>
+                <div class="info-card card-tithi">
+                    <div class="info-label">തിഥി</div>
+                    <div id="tithi" class="info-value">--</div>
+                    <div id="tithiEnd" class="info-subvalue"></div>
+                </div>
+                <div class="info-card card-weekday">
+                    <div class="info-label">വാരം</div>
+                    <div id="weekday" class="info-value">--</div>
+                </div>
+                <div class="info-card card-sunrise">
+                    <div class="info-label">☀️ സൂര്യോദയം</div>
+                    <div id="sunrise" class="info-value">--</div>
+                </div>
+                <div class="info-card card-sunset">
+                    <div class="info-label">🌅 സൂര്യാസ്തമയം</div>
+                    <div id="sunset" class="info-value">--</div>
+                </div>
+                <div class="info-card card-yoga">
+                    <div class="info-label">യോഗം</div>
+                    <div id="yoga" class="info-value">--</div>
+                </div>
+            </div>
+
+            <div class="special-events">
+                <div class="event-title">Special Events</div>
+                <div id="specialEvents" class="event-text">
+                    <span id="eventText"></span>
+                </div>
+            </div>
+
+            <div class="day-nakshatras-section">
+                <div class="nak-section-title">ദിവസത്തെ നക്ഷത്രങ്ങൾ (Day's Nakshatras)</div>
+                <div id="dayNakList" class="day-nak-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <div id="details" class="tab-content">
+            <div class="details-list">
+                <div class="detail-item">
+                    <div class="detail-label">കരണം</div>
+                    <div id="karana" class="detail-value">--</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">അയനാംശം</div>
+                    <div id="ayanamsa" class="detail-value">--</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">ചന്ദ്രന്റെ കാശി</div>
+                    <div id="rashiName" class="detail-value">--</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">രാശി പുരോഗതി</div>
+                    <div id="rashiProgress" class="detail-value">--</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">നക്ഷത്ര പാദം</div>
+                    <div id="nakshatraPada" class="detail-value">--</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">നക്ഷത്ര പുരോഗതി</div>
+                    <div id="nakshatraProgress" class="detail-value">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="timings" class="tab-content">
+            <div class="timings-grid">
+                <div class="info-card card-inauspicious">
+                    <div class="info-label">⚠️ രാഹുകാലം</div>
+                    <div id="rahukalam" class="info-value">--</div>
+                </div>
+                <div class="info-card card-inauspicious">
+                    <div class="info-label">⚠️ യമഘണ്ടം</div>
+                    <div id="yamagandam" class="info-value">--</div>
+                </div>
+                <div class="info-card card-inauspicious">
+                    <div class="info-label">⚠️ ഗുളികകാലം</div>
+                    <div id="gulika" class="info-value">--</div>
+                </div>
+                <div class="info-card card-moon">
+                    <div class="info-label">🌙 ചന്ദ്രോദയം</div>
+                    <div id="moonrise" class="info-value">--</div>
+                </div>
+                <div class="info-card card-moon">
+                    <div class="info-label">🌙 ചന്ദ്രാസ്തമയം</div>
+                    <div id="moonset" class="info-value">--</div>
+                </div>
+                <div class="info-card card-hora">
+                    <div class="info-label">ഹോറ</div>
+                    <div id="hora" class="info-value">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="additional" class="tab-content">
+            <div class="additional-info-section">
+                <h3>Astronomical Details</h3>
+                <div class="details-list">
+                    <div class="detail-item">
+                        <div class="detail-label">ചന്ദ്രന്റെ ഘട്ടം</div>
+                        <div id="moonPhase" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ചന്ദ്രന്റെ തെളിച്ചം</div>
+                        <div id="moonIllumination" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">സൂര്യന്റെ രാശി</div>
+                        <div id="sunLongitude" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ചന്ദ്രന്റെ രാശി</div>
+                        <div id="moonLongitude" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ബുധന്റെ രാശി</div>
+                        <div id="mercuryLongitude" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ശുക്രന്റെ രാശി</div>
+                        <div id="venusLongitude" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ചൊവ്വയുടെ രാശി</div>
+                        <div id="marsLongitude" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ഗുരുവിന്റെ രാശി</div>
+                        <div id="jupiterLongitude" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ശനിയുടെ രാശി</div>
+                        <div id="saturnLongitude" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">പഞ്ചാകം</div>
+                        <div id="panchak" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">പഞ്ചാക തരം</div>
+                        <div id="panchakType" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ദിനേശ്വരൻ</div>
+                        <div id="dayLord" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ഹിന്ദു മാസം</div>
+                        <div id="hinduMonth" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">പക്ഷം</div>
+                        <div id="paksha" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ശക വർഷം</div>
+                        <div id="shakaYear" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">വിക്രമ വർഷം</div>
+                        <div id="vikramYear" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">തിഥി ദൈർഘ്യം</div>
+                        <div id="tithiDuration" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">രാശി തത്വം</div>
+                        <div id="rashiElement" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">രാശി ഗുണം</div>
+                        <div id="rashiQuality" class="detail-value">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="calendar" class="tab-content">
+            <div class="calendar-nav">
+                <button id="calPrev">&larr; Prev</button>
+                <span id="calMonthTitle" class="cal-month-title">--</span>
+                <button id="calNext">Next &rarr;</button>
+            </div>
+            <div id="calendarGrid" class="calendar-grid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <div id="tools" class="tab-content">
+            <div class="tools-grid">
+                <!-- Kollam Converter -->
+                <div class="tool-card tool-converter">
+                    <div class="tool-card-header">
+                        <span class="tool-icon">📅</span>
+                        Kollam to Gregorian Converter
+                    </div>
+                    <div class="tool-card-body">
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="revYear">Kollam Year</label>
+                                <input type="number" id="revYear" placeholder="Year">
+                            </div>
+                            <div class="form-field">
+                                <label for="revMonth">Month</label>
+                                <select id="revMonth">
+                                    <option value="മേടം">മേടം</option>
+                                    <option value="ഇടവം">ഇടവം</option>
+                                    <option value="മിഥുനം">മിഥുനം</option>
+                                    <option value="കർക്കടകം">കർക്കടകം</option>
+                                    <option value="ചിങ്ങം">ചിങ്ങം</option>
+                                    <option value="കന്നി">കന്നി</option>
+                                    <option value="തുലാം">തുലാം</option>
+                                    <option value="വൃശ്ചികം">വൃശ്ചികം</option>
+                                    <option value="ധനു">ധനു</option>
+                                    <option value="മകരം">മകരം</option>
+                                    <option value="കുംഭം">കുംഭം</option>
+                                    <option value="മീനം">മീനം</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for="revDate">Date</label>
+                                <input type="number" id="revDate" placeholder="Day">
+                            </div>
+                        </div>
+                        <button class="tool-btn" id="findDateBtn">Convert</button>
+                        <div id="revResult" class="tool-result">
+                            <strong>Gregorian Date:</strong> <span id="revDateResult">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nakshatra Finder -->
+                <div class="tool-card tool-nakfinder">
+                    <div class="tool-card-header">
+                        <span class="tool-icon">⭐</span>
+                        Find Next Nakshatra
+                    </div>
+                    <div class="tool-card-body">
+                        <div class="form-row">
+                            <div class="form-field" style="flex:2">
+                                <label for="nakSelect">Select Nakshatra</label>
+                                <select id="nakSelect">
+                                    <!-- Populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for="nakCount">Occurrences</label>
+                                <select id="nakCount">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3" selected>3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="tool-btn" id="findNakBtn">Find Next Occurrence</button>
+                        <div id="nakResult" class="tool-result">
+                            <div id="nakResultList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events - spans full width -->
+                <div class="tool-card tool-events" style="grid-column: 1 / -1;">
+                    <div class="tool-card-header">
+                        <span class="tool-icon">🗓️</span>
+                        Upcoming Events
+                    </div>
+                    <div class="tool-card-body">
+                        <div id="upcomingList" class="events-timeline">
+                            <div style="text-align:center; font-size: 0.8rem; color: #aaa;">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            📍 <span>Malappuram, Kerala</span> &middot; Panchangam<br>
+            Created by <a href="mailto:babuperumana@gmail.com" style="color:#8e2de2; text-decoration:none; font-weight:500;">Babu Perumana</a> &middot;
+            💬 <a href="https://wa.me/918907959595" style="color:#25D366; text-decoration:none;">+91 8907050505</a>
+        </footer>
+    </div>
+
+    <script src="panchang.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

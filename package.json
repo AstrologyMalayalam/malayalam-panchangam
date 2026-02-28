@@ -1,0 +1,32 @@
+{
+  "name": "malayalam-panchangam",
+  "version": "1.0.0",
+  "description": "Malayalam Panchangam calculator — compute Nakshatra, Tithi, Yoga, Karana, Rashi, and Kollam Era dates for any given date",
+  "main": "panchang.js",
+  "scripts": {
+    "test": "node -e \"const P = require('./panchang.js'); const r = new P().calculate(new Date()); console.log(r.nakshatra.name ? 'OK' : 'FAIL');\""
+  },
+  "keywords": [
+    "panchangam",
+    "malayalam",
+    "hindu-calendar",
+    "nakshatra",
+    "tithi",
+    "kollam",
+    "kerala",
+    "panchang",
+    "yoga",
+    "karana",
+    "rashi"
+  ],
+  "author": "Babu Perumana <babuperumana@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/babuperumana/malayalam-panchangam.git"
+  },
+  "homepage": "https://github.com/babuperumana/malayalam-panchangam",
+  "bugs": {
+    "url": "https://github.com/babuperumana/malayalam-panchangam/issues"
+  }
+}
